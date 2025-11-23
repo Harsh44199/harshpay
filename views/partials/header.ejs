@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HarshPay - Secure and fast payment solution">
+    <meta name="theme-color" content="#6366F1">
+    
     <title>HarshPay - Your Payment Solution</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
@@ -11,22 +24,23 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="<%= user.is_admin ? '/admin/dashboard' : '/dashboard' %>" class="logo">
-                💳 HarshPay
+                <i class="fas fa-wallet"></i>
+                HarshPay
             </a>
             <ul class="nav-links">
                 <% if (user.is_admin) { %>
-                    <li><a href="/admin/dashboard">Dashboard</a></li>
-                    <li><a href="/admin/add-money">Add Money</a></li>
+                    <li><a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="/admin/add-money"><i class="fas fa-plus-circle"></i> Add Money</a></li>
                 <% } else { %>
-                    <li><a href="/dashboard">Dashboard</a></li>
-                    <li><a href="/send-money">Send Money</a></li>
-                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li><a href="/send-money"><i class="fas fa-paper-plane"></i> Send Money</a></li>
+                    <li><a href="/transactions"><i class="fas fa-receipt"></i> Transactions</a></li>
                 <% } %>
                 <li class="user-info">
-                    <span>👤 <%= user.full_name %></span>
-                    <span class="balance">₹<%= parseFloat(user.balance).toFixed(2) %></span>
+                    <span><i class="fas fa-user"></i> <%= user.full_name %></span>
+                    <span class="balance"><i class="fas fa-coins"></i> ₹<%= parseFloat(user.balance).toFixed(2) %></span>
                 </li>
-                <li><a href="/auth/logout" class="logout-btn">Logout</a></li>
+                <li><a href="/auth/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
             </ul>
         </div>
     </nav>

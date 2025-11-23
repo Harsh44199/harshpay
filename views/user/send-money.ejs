@@ -2,21 +2,30 @@
 
 <div class="page-container">
     <div class="page-header">
-        <h1>💸 Send Money</h1>
-        <p>Transfer money to any HarshPay user</p>
+        <h1><i class="fas fa-paper-plane"></i> Send Money</h1>
+        <p><i class="fas fa-info-circle"></i> Transfer money to any HarshPay user</p>
     </div>
 
     <% if (error) { %>
-        <div class="alert alert-error"><%= error %></div>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <%= error %>
+        </div>
     <% } %>
     <% if (success) { %>
-        <div class="alert alert-success"><%= success %></div>
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <%= success %>
+        </div>
     <% } %>
 
     <div class="form-card">
         <form action="/payment/send" method="POST" id="sendMoneyForm">
             <div class="form-group">
-                <label for="receiver_email">📧 Recipient Email</label>
+                <label for="receiver_email">
+                    <i class="fas fa-user"></i>
+                    Recipient Email
+                </label>
                 <input type="email" 
                        id="receiver_email" 
                        name="receiver_email" 
@@ -27,7 +36,10 @@
             </div>
 
             <div class="form-group">
-                <label for="amount">💰 Amount (₹)</label>
+                <label for="amount">
+                    <i class="fas fa-rupee-sign"></i>
+                    Amount (₹)
+                </label>
                 <input type="number" 
                        id="amount" 
                        name="amount" 
@@ -35,18 +47,27 @@
                        min="1" 
                        step="0.01" 
                        placeholder="Enter amount">
-                <p class="form-help">Available balance: ₹<%= parseFloat(user.balance).toFixed(2) %></p>
+                <p class="form-help">
+                    <i class="fas fa-wallet"></i>
+                    Available balance: ₹<%= parseFloat(user.balance).toFixed(2) %>
+                </p>
             </div>
 
             <div class="form-group">
-                <label for="description">📝 Description (Optional)</label>
+                <label for="description">
+                    <i class="fas fa-comment"></i>
+                    Description (Optional)
+                </label>
                 <textarea id="description" 
                           name="description" 
                           rows="3" 
                           placeholder="Add a note..."></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block">Send Money</button>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-paper-plane"></i>
+                Send Money
+            </button>
         </form>
     </div>
 </div>
@@ -75,8 +96,10 @@ emailInput.addEventListener('input', function() {
                 } else {
                     suggestionsDiv.innerHTML = users.map(user => `
                         <div class="suggestion-item" onclick="selectUser('${user.email}', '${user.full_name}')">
-                            <strong>${user.full_name}</strong><br>
-                            <small>${user.email}</small>
+                            <div>
+                                <strong>${user.full_name}</strong><br>
+                                <small>${user.email}</small>
+                            </div>
                         </div>
                     `).join('');
                 }
@@ -93,7 +116,7 @@ function selectUser(email, name) {
 }
 
 document.addEventListener('click', function(e) {
-    if (e.target !== emailInput && e.target !== suggestionsDiv) {
+    if (e.target !== emailInput && !suggestionsDiv.contains(e.target)) {
         suggestionsDiv.style.display = 'none';
     }
 });

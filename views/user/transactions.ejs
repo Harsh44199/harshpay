@@ -2,12 +2,15 @@
 
 <div class="page-container">
     <div class="page-header">
-        <h1>📋 Transaction History</h1>
-        <p>All your transactions in one place</p>
+        <h1><i class="fas fa-receipt"></i> Transaction History</h1>
+        <p><i class="fas fa-list"></i> All your transactions in one place</p>
     </div>
 
     <% if (error) { %>
-        <div class="alert alert-error"><%= error %></div>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <%= error %>
+        </div>
     <% } %>
 
     <% if (transactions && transactions.length > 0) { %>
@@ -15,12 +18,12 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Date & Time</th>
-                        <th>Type</th>
-                        <th>From/To</th>
-                        <th>Description</th>
-                        <th>Amount</th>
-                        <th>Status</th>
+                        <th><i class="far fa-calendar"></i> Date & Time</th>
+                        <th><i class="fas fa-tag"></i> Type</th>
+                        <th><i class="fas fa-user"></i> From/To</th>
+                        <th><i class="fas fa-comment"></i> Description</th>
+                        <th><i class="fas fa-rupee-sign"></i> Amount</th>
+                        <th><i class="fas fa-info-circle"></i> Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -29,6 +32,7 @@
                             <td><%= new Date(transaction.created_at).toLocaleString() %></td>
                             <td>
                                 <span class="badge <%= transaction.sender_id === user.id ? 'badge-sent' : 'badge-received' %>">
+                                    <i class="fas fa-<%= transaction.sender_id === user.id ? 'arrow-up' : 'arrow-down' %>"></i>
                                     <%= transaction.sender_id === user.id ? 'Sent' : 'Received' %>
                                 </span>
                             </td>
@@ -36,7 +40,7 @@
                                 <% if (transaction.sender_id === user.id) { %>
                                     <%= transaction.receiver_name %><br>
                                     <small><%= transaction.receiver_email %></small>
-                                <% } else if (transaction.receiver_id === user.id) { %>
+                                <% } else { %>
                                     <%= transaction.sender_name || 'HarshPay Admin' %><br>
                                     <small><%= transaction.sender_email || 'system@harshpay.com' %></small>
                                 <% } %>
@@ -46,7 +50,10 @@
                                 <%= transaction.sender_id === user.id ? '-' : '+' %>₹<%= parseFloat(transaction.amount).toFixed(2) %>
                             </td>
                             <td>
-                                <span class="badge badge-success">✓ <%= transaction.status %></span>
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check"></i>
+                                    <%= transaction.status %>
+                                </span>
                             </td>
                         </tr>
                     <% }); %>
@@ -55,8 +62,14 @@
         </div>
     <% } else { %>
         <div class="empty-state">
-            <p>📭 No transactions yet</p>
-            <a href="/send-money" class="btn btn-primary">Send Money</a>
+            <p>
+                <i class="fas fa-inbox"></i>
+                No transactions yet
+            </p>
+            <a href="/send-money" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i>
+                Send Money
+            </a>
         </div>
     <% } %>
 </div>
