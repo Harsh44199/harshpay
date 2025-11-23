@@ -177,5 +177,13 @@
     </section>
 
     <script src="/js/main.js"></script>
+    <script>
+    // Show message if account was deleted
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('deleted') === 'true') {
+        alert('✅ Your account has been permanently deleted. Thank you for using HarshPay!');
+        window.history.replaceState({}, document.title, "/");
+    }
+</script>
 </body>
 </html>

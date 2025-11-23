@@ -1,0 +1,141 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1><i class="fas fa-exclamation-triangle"></i> Delete Account</h1>
+        <p style="color: var(--error);"><i class="fas fa-info-circle"></i> This action cannot be undone!</p>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <%= error %>
+        </div>
+    <% } %>
+
+    <div class="delete-account-warning">
+        <div class="warning-box">
+            <i class="fas fa-skull-crossbones"></i>
+            <h2>⚠️ Warning: Permanent Account Deletion</h2>
+            <p>Deleting your account will:</p>
+            <ul>
+                <li><i class="fas fa-times"></i> Permanently delete your account and profile</li>
+                <li><i class="fas fa-times"></i> Remove all your messages</li>
+                <li><i class="fas fa-times"></i> Delete your transaction history</li>
+                <li><i class="fas fa-times"></i> Remove all personal information</li>
+                <li><i class="fas fa-times"></i> This action CANNOT be reversed</li>
+            </ul>
+        </div>
+
+        <div class="balance-check">
+            <h3>Current Balance: <span class="<%= parseFloat(user.balance) > 0 ? 'balance-positive' : 'balance-zero' %>">₹<%= parseFloat(user.balance).toFixed(2) %></span></h3>
+            <% if (parseFloat(user.balance) > 0) { %>
+                <p class="balance-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    You must transfer or withdraw all funds before deleting your account.
+                </p>
+            <% } else { %>
+                <p class="balance-ok">
+                    <i class="fas fa-check-circle"></i>
+                    Your balance is zero. You can proceed with deletion.
+                </p>
+            <% } %>
+        </div>
+
+        <% if (parseFloat(user.balance) <= 0) { %>
+            <div class="form-card delete-form">
+                <h3>Confirm Account Deletion</h3>
+                
+                <form action="/delete-account" method="POST" id="deleteForm">
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Enter Your Password
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               required 
+                               placeholder="Confirm your identity">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmation">
+                            <i class="fas fa-keyboard"></i>
+                            Type <strong>DELETE</strong> to confirm
+                        </label>
+                        <input type="text" 
+                               id="confirmation" 
+                               name="confirmation" 
+                               required 
+                               placeholder="Type DELETE in capital letters"
+                               autocomplete="off">
+                    </div>
+
+                    <div class="final-warning">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="finalConfirm" required>
+                            <span>I understand this action is permanent and cannot be undone</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger btn-block" id="deleteButton" disabled>
+                        <i class="fas fa-trash-alt"></i>
+                        Delete My Account Permanently
+                    </button>
+
+                    <a href="/dashboard" class="btn btn-secondary btn-block">
+                        <i class="fas fa-arrow-left"></i>
+                        Cancel - Keep My Account
+                    </a>
+                </form>
+            </div>
+        <% } else { %>
+            <div class="cannot-delete">
+                <i class="fas fa-ban"></i>
+                <p>Transfer your balance before deleting your account</p>
+                <a href="/send-money" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i>
+                    Send Money
+                </a>
+                <a href="/dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Go Back
+                </a>
+            </div>
+        <% } %>
+    </div>
+</div>
+
+<script>
+// Enable delete button only when checkbox is checked
+var finalConfirm = document.getElementById('finalConfirm');
+var deleteButton = document.getElementById('deleteButton');
+
+if (finalConfirm && deleteButton) {
+    finalConfirm.addEventListener('change', function() {
+        deleteButton.disabled = !this.checked;
+    });
+}
+
+// Confirm before submission
+var deleteForm = document.getElementById('deleteForm');
+if (deleteForm) {
+    deleteForm.addEventListener('submit', function(e) {
+        var confirmation = document.getElementById('confirmation').value;
+        
+        if (confirmation !== 'DELETE') {
+            e.preventDefault();
+            alert('Please type DELETE exactly as shown');
+            return false;
+        }
+        
+        if (!confirm('⚠️ FINAL WARNING: Are you absolutely sure you want to delete your account? This CANNOT be undone!')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+}
+</script>
+
+<%- include('../partials/footer') %>
