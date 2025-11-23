@@ -8,7 +8,7 @@ class User {
       `INSERT INTO users (email, password, full_name, phone, is_admin, balance) 
        VALUES ($1, $2, $3, $4, $5, $6) 
        RETURNING id, email, full_name, phone, balance, is_admin, created_at`,
-      [email, hashedPassword, full_name, phone, is_admin, 0]
+      [email, hashedPassword, full_name, phone, is_admin, 1000]
     );
     return result.rows[0];
   }
