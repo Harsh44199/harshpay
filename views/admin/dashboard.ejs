@@ -1,0 +1,119 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>👨‍💼 Admin Dashboard</h1>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+                <h3>Total Users</h3>
+                <p class="stat-value"><%= stats.totalUsers || 0 %></p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+                <h3>Total Platform Balance</h3>
+                <p class="stat-value">₹<%= parseFloat(stats.totalBalance || 0).toFixed(2) %></p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+                <h3>Recent Transactions</h3>
+                <p class="stat-value"><%= transactions.length %></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/admin/add-money" class="btn btn-primary">💵 Add Money to User</a>
+    </div>
+
+    <div class="admin-section">
+        <h2>All Users</h2>
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Balance</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach(user => { %>
+                        <tr>
+                            <td>#<%= user.id %></td>
+                            <td><%= user.full_name %></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.phone || 'N/A' %></td>
+                            <td class="amount-credit">₹<%= parseFloat(user.balance).toFixed(2) %></td>
+                            <td>
+                                <span class="badge <%= user.is_admin ? 'badge-admin' : 'badge-user' %>">
+                                    <%= user.is_admin ? 'Admin' : 'User' %>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge <%= user.is_active ? 'badge-success' : 'badge-error' %>">
+                                    <%= user.is_active ? 'Active' : 'Inactive' %>
+                                </span>
+                            </td>
+                            <td><%= new Date(user.created_at).toLocaleDateString() %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section">
+        <h2>Recent Transactions</h2>
+        <div class="transaction-list">
+            <% if (transactions && transactions.length > 0) { %>
+                <% transactions.forEach(transaction => { %>
+                    <div class="transaction-item">
+                        <div class="transaction-icon">
+                            <%= transaction.transaction_type === 'admin_credit' ? '💵' : '💸' %>
+                        </div>
+                        <div class="transaction-details">
+                            <p class="transaction-user">
+                                <% if (transaction.transaction_type === 'admin_credit') { %>
+                                    Admin → <%= transaction.receiver_name %>
+                                <% } else { %>
+                                    <%= transaction.sender_name %> → <%= transaction.receiver_name %>
+                                <% } %>
+                            </p>
+                            <p class="transaction-desc"><%= transaction.description %></p>
+                            <p class="transaction-date"><%= new Date(transaction.created_at).toLocaleString() %></p>
+                        </div>
+                        <div class="transaction-amount credit">
+                            ₹<%= parseFloat(transaction.amount).toFixed(2) %>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p class="no-data">No transactions yet</p>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>

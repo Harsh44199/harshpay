@@ -1,0 +1,64 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>📋 Transaction History</h1>
+        <p>All your transactions in one place</p>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <% if (transactions && transactions.length > 0) { %>
+        <div class="transaction-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Type</th>
+                        <th>From/To</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% transactions.forEach(transaction => { %>
+                        <tr>
+                            <td><%= new Date(transaction.created_at).toLocaleString() %></td>
+                            <td>
+                                <span class="badge <%= transaction.sender_id === user.id ? 'badge-sent' : 'badge-received' %>">
+                                    <%= transaction.sender_id === user.id ? 'Sent' : 'Received' %>
+                                </span>
+                            </td>
+                            <td>
+                                <% if (transaction.sender_id === user.id) { %>
+                                    <%= transaction.receiver_name %><br>
+                                    <small><%= transaction.receiver_email %></small>
+                                <% } else if (transaction.receiver_id === user.id) { %>
+                                    <%= transaction.sender_name || 'HarshPay Admin' %><br>
+                                    <small><%= transaction.sender_email || 'system@harshpay.com' %></small>
+                                <% } %>
+                            </td>
+                            <td><%= transaction.description %></td>
+                            <td class="<%= transaction.sender_id === user.id ? 'amount-debit' : 'amount-credit' %>">
+                                <%= transaction.sender_id === user.id ? '-' : '+' %>₹<%= parseFloat(transaction.amount).toFixed(2) %>
+                            </td>
+                            <td>
+                                <span class="badge badge-success">✓ <%= transaction.status %></span>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div class="empty-state">
+            <p>📭 No transactions yet</p>
+            <a href="/send-money" class="btn btn-primary">Send Money</a>
+        </div>
+    <% } %>
+</div>
+
+<%- include('../partials/footer') %>

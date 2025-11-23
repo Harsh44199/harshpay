@@ -1,0 +1,102 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>💸 Send Money</h1>
+        <p>Transfer money to any HarshPay user</p>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="form-card">
+        <form action="/payment/send" method="POST" id="sendMoneyForm">
+            <div class="form-group">
+                <label for="receiver_email">📧 Recipient Email</label>
+                <input type="email" 
+                       id="receiver_email" 
+                       name="receiver_email" 
+                       required 
+                       placeholder="Enter recipient's email"
+                       autocomplete="off">
+                <div id="userSuggestions" class="suggestions-dropdown"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="amount">💰 Amount (₹)</label>
+                <input type="number" 
+                       id="amount" 
+                       name="amount" 
+                       required 
+                       min="1" 
+                       step="0.01" 
+                       placeholder="Enter amount">
+                <p class="form-help">Available balance: ₹<%= parseFloat(user.balance).toFixed(2) %></p>
+            </div>
+
+            <div class="form-group">
+                <label for="description">📝 Description (Optional)</label>
+                <textarea id="description" 
+                          name="description" 
+                          rows="3" 
+                          placeholder="Add a note..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Send Money</button>
+        </form>
+    </div>
+</div>
+
+<script>
+let searchTimeout;
+const emailInput = document.getElementById('receiver_email');
+const suggestionsDiv = document.getElementById('userSuggestions');
+
+emailInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const query = this.value.trim();
+    
+    if (query.length < 3) {
+        suggestionsDiv.innerHTML = '';
+        suggestionsDiv.style.display = 'none';
+        return;
+    }
+
+    searchTimeout = setTimeout(() => {
+        fetch(`/search-users?email=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(users => {
+                if (users.length === 0) {
+                    suggestionsDiv.innerHTML = '<div class="suggestion-item">No users found</div>';
+                } else {
+                    suggestionsDiv.innerHTML = users.map(user => `
+                        <div class="suggestion-item" onclick="selectUser('${user.email}', '${user.full_name}')">
+                            <strong>${user.full_name}</strong><br>
+                            <small>${user.email}</small>
+                        </div>
+                    `).join('');
+                }
+                suggestionsDiv.style.display = 'block';
+            })
+            .catch(err => console.error('Search error:', err));
+    }, 300);
+});
+
+function selectUser(email, name) {
+    emailInput.value = email;
+    suggestionsDiv.innerHTML = '';
+    suggestionsDiv.style.display = 'none';
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target !== emailInput && e.target !== suggestionsDiv) {
+        suggestionsDiv.style.display = 'none';
+    }
+});
+</script>
+
+<%- include('../partials/footer') %>

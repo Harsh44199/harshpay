@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HarshPay - Your Payment Solution</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <% if (user) { %>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="<%= user.is_admin ? '/admin/dashboard' : '/dashboard' %>" class="logo">
+                💳 HarshPay
+            </a>
+            <ul class="nav-links">
+                <% if (user.is_admin) { %>
+                    <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <li><a href="/admin/add-money">Add Money</a></li>
+                <% } else { %>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/send-money">Send Money</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                <% } %>
+                <li class="user-info">
+                    <span>👤 <%= user.full_name %></span>
+                    <span class="balance">₹<%= parseFloat(user.balance).toFixed(2) %></span>
+                </li>
+                <li><a href="/auth/logout" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+    <% } %>
+    <main class="main-content">

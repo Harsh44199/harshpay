@@ -1,0 +1,76 @@
+<%- include('../partials/header') %>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome back, <%= user.full_name %>! 👋</h1>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+    <% } %>
+    <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="stats-grid">
+        <div class="stat-card balance-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+                <h3>Current Balance</h3>
+                <p class="stat-value">₹<%= parseFloat(user.balance).toFixed(2) %></p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📤</div>
+            <div class="stat-info">
+                <h3>Total Sent</h3>
+                <p class="stat-value">₹<%= parseFloat(stats.total_sent || 0).toFixed(2) %></p>
+                <p class="stat-label"><%= stats.sent_count || 0 %> transactions</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📥</div>
+            <div class="stat-info">
+                <h3>Total Received</h3>
+                <p class="stat-value">₹<%= parseFloat(stats.total_received || 0).toFixed(2) %></p>
+                <p class="stat-label"><%= stats.received_count || 0 %> transactions</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="/send-money" class="btn btn-primary">💸 Send Money</a>
+        <a href="/transactions" class="btn btn-secondary">📋 View All Transactions</a>
+    </div>
+
+    <div class="recent-transactions">
+        <h2>Recent Transactions</h2>
+        <% if (transactions && transactions.length > 0) { %>
+            <div class="transaction-list">
+                <% transactions.forEach(transaction => { %>
+                    <div class="transaction-item <%= transaction.sender_id === user.id ? 'sent' : 'received' %>">
+                        <div class="transaction-icon">
+                            <%= transaction.sender_id === user.id ? '📤' : '📥' %>
+                        </div>
+                        <div class="transaction-details">
+                            <p class="transaction-user">
+                                <%= transaction.sender_id === user.id ? transaction.receiver_name : transaction.sender_name %>
+                            </p>
+                            <p class="transaction-desc"><%= transaction.description %></p>
+                            <p class="transaction-date"><%= new Date(transaction.created_at).toLocaleString() %></p>
+                        </div>
+                        <div class="transaction-amount <%= transaction.sender_id === user.id ? 'debit' : 'credit' %>">
+                            <%= transaction.sender_id === user.id ? '-' : '+' %>₹<%= parseFloat(transaction.amount).toFixed(2) %>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p class="no-data">No transactions yet</p>
+        <% } %>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
