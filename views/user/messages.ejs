@@ -1,0 +1,246 @@
+<%- include('../partials/header') %>
+
+<div class="messages-container">
+    <div class="messages-layout">
+        
+        <!-- Sidebar - Conversations List -->
+        <div class="conversations-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-comments"></i> Messages</h2>
+                <a href="/messages/new" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> New
+                </a>
+            </div>
+
+            <% if (conversations && conversations.length > 0) { %>
+                <div class="conversations-list">
+                    <% conversations.forEach(function(conv) { %>
+                        <a href="/messages/<%= conv.other_user_id %>" 
+                           class="conversation-item <%= selectedUser && selectedUser.id == conv.other_user_id ? 'active' : '' %>">
+                            <div class="conversation-avatar">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <div class="conversation-info">
+                                <div class="conversation-name">
+                                    <%= conv.other_user_name %>
+                                    <% if (conv.unread_count > 0) { %>
+                                        <span class="unread-badge"><%= conv.unread_count %></span>
+                                    <% } %>
+                                </div>
+                                <div class="conversation-preview">
+                                    <%= conv.last_message ? conv.last_message.substring(0, 50) : 'Start conversation' %><%= conv.last_message && conv.last_message.length > 50 ? '...' : '' %>
+                                </div>
+                                <div class="conversation-time">
+                                    <%= new Date(conv.last_message_time).toLocaleDateString() %>
+                                </div>
+                            </div>
+                        </a>
+                    <% }); %>
+                </div>
+            <% } else { %>
+                <div class="empty-conversations">
+                    <i class="fas fa-inbox"></i>
+                    <p>No conversations yet</p>
+                    <a href="/messages/new" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Start Messaging
+                    </a>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chat-area">
+            <% if (selectedUser) { %>
+                <!-- Chat Header -->
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <div>
+                            <strong><%= selectedUser.full_name %></strong>
+                            <span><%= selectedUser.email %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="messages-area" id="messagesArea">
+                    <% if (messages && messages.length > 0) { %>
+                        <% messages.forEach(function(msg) { %>
+                            <div class="message <%= msg.sender_id == user.id ? 'sent' : 'received' %>" data-id="<%= msg.id %>">
+                                <div class="message-content">
+                                    <%= msg.message %>
+                                </div>
+                                <div class="message-time">
+                                    <%= new Date(msg.created_at).toLocaleTimeString() %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="no-messages">
+                            <i class="fas fa-comments"></i>
+                            <p>No messages yet. Start the conversation!</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Message Input -->
+                <div class="message-input-area">
+                    <form id="messageForm" onsubmit="return false;">
+                        <input type="hidden" id="receiverId" value="<%= selectedUser.id %>">
+                        <input type="text" 
+                               id="messageInput" 
+                               placeholder="Type your message..." 
+                               autocomplete="off"
+                               required>
+                        <button type="submit" class="btn btn-primary" id="sendButton">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </form>
+                </div>
+            <% } else { %>
+                <!-- No Conversation Selected -->
+                <div class="no-conversation-selected">
+                    <i class="fas fa-comments"></i>
+                    <h3>Select a conversation</h3>
+                    <p>Choose a conversation from the sidebar or start a new one</p>
+                    <a href="/messages/new" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Conversation
+                    </a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<% if (selectedUser) { %>
+<script>
+(function() {
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    const messagesArea = document.getElementById('messagesArea');
+    const sendButton = document.getElementById('sendButton');
+    const receiverId = parseInt(document.getElementById('receiverId').value);
+    const currentUserId = <%= user.id %>;
+    
+    let lastMessageId = <%= messages && messages.length > 0 ? messages[messages.length - 1].id : 0 %>;
+    let pollInterval;
+
+    // Send message
+    messageForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const message = messageInput.value.trim();
+        
+        if (!message) return;
+
+        // Disable send button
+        sendButton.disabled = true;
+        sendButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+        try {
+            const response = await fetch('/messages/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    receiver_id: receiverId,
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Add message to UI
+                addMessageToUI(data.message, true);
+                messageInput.value = '';
+                lastMessageId = data.message.id;
+                scrollToBottom();
+            } else {
+                alert('Failed to send message: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Send error:', error);
+            alert('Failed to send message. Please try again.');
+        } finally {
+            // Re-enable send button
+            sendButton.disabled = false;
+            sendButton.innerHTML = '<i class="fas fa-paper-plane"></i> Send';
+        }
+    });
+
+    // Poll for new messages every 3 seconds
+    function startPolling() {
+        pollInterval = setInterval(async function() {
+            try {
+                const response = await fetch('/messages/poll/' + receiverId + '?lastMessageId=' + lastMessageId);
+                const data = await response.json();
+
+                if (data.success && data.messages && data.messages.length > 0) {
+                    data.messages.forEach(function(msg) {
+                        addMessageToUI(msg, false);
+                        lastMessageId = msg.id;
+                    });
+                    scrollToBottom();
+                }
+            } catch (error) {
+                console.error('Poll error:', error);
+            }
+        }, 3000);
+    }
+
+    // Add message to UI
+    function addMessageToUI(message, isSent) {
+        // Check if message already exists
+        const existing = document.querySelector('[data-id="' + message.id + '"]');
+        if (existing) return;
+
+        // Remove "no messages" placeholder if exists
+        const noMessages = messagesArea.querySelector('.no-messages');
+        if (noMessages) {
+            noMessages.remove();
+        }
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ' + (isSent ? 'sent' : 'received');
+        messageDiv.setAttribute('data-id', message.id);
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        contentDiv.textContent = message.message;
+        
+        const timeDiv = document.createElement('div');
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = new Date(message.created_at).toLocaleTimeString();
+        
+        messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(timeDiv);
+        messagesArea.appendChild(messageDiv);
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    // Start polling
+    startPolling();
+
+    // Initial scroll
+    scrollToBottom();
+
+    // Focus input
+    messageInput.focus();
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        if (pollInterval) {
+            clearInterval(pollInterval);
+        }
+    });
+})();
+</script>
+<% } %>
+
+<%- include('../partials/footer') %>

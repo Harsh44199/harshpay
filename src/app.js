@@ -31,10 +31,12 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
 
+// Routes
 app.use('/auth', require('./routes/auth'));
 app.use('/', require('./routes/user'));
 app.use('/payment', require('./routes/payment'));
 app.use('/admin', require('./routes/admin'));
+app.use('/', require('./routes/message')); // NEW: Message routes
 
 // Home route - Landing page
 app.get('/', (req, res) => {

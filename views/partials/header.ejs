@@ -31,14 +31,15 @@
                 HarshPay
             </a>
             <ul class="nav-links">
-                <% if (user.is_admin) { %>
-                    <li><a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/add-money"><i class="fas fa-plus-circle"></i> Add Money</a></li>
-                <% } else { %>
-                    <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="/send-money"><i class="fas fa-paper-plane"></i> Send Money</a></li>
-                    <li><a href="/transactions"><i class="fas fa-receipt"></i> Transactions</a></li>
-                <% } %>
+               <% if (user.is_admin) { %>
+    <li><a href="/admin/dashboard"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+    <li><a href="/admin/add-money"><i class="fas fa-plus-circle"></i> Add Money</a></li>
+<% } else { %>
+    <li><a href="/dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+    <li><a href="/send-money"><i class="fas fa-paper-plane"></i> Send Money</a></li>
+    <li><a href="/transactions"><i class="fas fa-receipt"></i> Transactions</a></li>
+    <li><a href="/messages"><i class="fas fa-comments"></i> Messages</a></li> <!-- NEW -->
+<% } %>
                 <li class="user-info">
                     <span><i class="fas fa-user"></i> <%= user.full_name %></span>
                     <span class="balance"><i class="fas fa-coins"></i> ₹<%= parseFloat(user.balance).toFixed(2) %></span>

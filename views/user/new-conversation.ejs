@@ -1,0 +1,47 @@
+<%- include('../partials/header') %>
+
+<div class="page-container">
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> Start New Conversation</h1>
+        <p><i class="fas fa-info-circle"></i> Select a user to start messaging</p>
+    </div>
+
+    <% if (error) { %>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (users && users.length > 0) { %>
+        <div class="users-grid">
+            <% users.forEach(function(u) { %>
+                <a href="/messages/<%= u.id %>" class="user-card">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <strong><%= u.full_name %></strong>
+                        <span><%= u.email %></span>
+                    </div>
+                    <div class="user-action">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                </a>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <div class="empty-state">
+            <i class="fas fa-users"></i>
+            <p>No users available to message</p>
+        </div>
+    <% } %>
+
+    <div style="margin-top: 2rem; text-align: center;">
+        <a href="/messages" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Messages
+        </a>
+    </div>
+</div>
+
+<%- include('../partials/footer') %>
